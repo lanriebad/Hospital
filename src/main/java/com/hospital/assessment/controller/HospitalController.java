@@ -38,6 +38,10 @@ public class HospitalController {
     @Value("${no.patient.record:No Record Found}")
     public String noRecord;
 
+    @Value("${patient.csv.message:Kindly find the CSV file from this path %s}")
+    public String patientCSVMessage;
+
+
     @Autowired
    HospitalUtility hospitalUtility;
 
@@ -134,7 +138,7 @@ public class HospitalController {
         String message = StringUtils.EMPTY;
         fileName = hospitalService.downloadPatientCsv(request, response, fileName);
         if(StringUtils.isNotEmpty(fileName)) {
-            message = String.format("Kindly find the CSV file from this path %s", fileName);
+            message = String.format(patientCSVMessage, fileName);
             mp.put("Message", message);
             defaultResponse.setResponseCode(ServiceResponse.ResponseCode.SUCCESS.getCode());
             defaultResponse.setResponseMsg(ServiceResponse.ResponseCode.SUCCESS.getDefaultMessage());

@@ -43,6 +43,13 @@ public class HospitalServiceImpl implements HospitalService {
     @Autowired
     private HospitalDao hospitalDao;
 
+    @Value("${success.profile.delete.message:Date Range From %s  to  %s  has been deleted}")
+    public String successProfileDeleteMessage;
+
+
+    @Value("${failed.profile.delete.message:Date Range From %s  to  %s  does not exist}")
+    public String failedProfileDeleteMessage;
+
 
     @Override
     public DefaultServiceResponse addStaff(StaffRequest request) {
@@ -128,11 +135,11 @@ public class HospitalServiceImpl implements HospitalService {
             patientRepository.deleteRecordByDateRange(startDate, endDate);
             response.setResponseCode(ServiceResponse.ResponseCode.SUCCESS.getCode());
             response.setResponseMsg(ServiceResponse.ResponseCode.SUCCESS.getDefaultMessage());
-            message = String.format("Date Range From %s  to  %s  has been deleted.", startDate, endDate);
+            message = String.format(successProfileDeleteMessage, startDate, endDate);
             mp.put("Message", message);
             response.setResponseData(Collections.singletonList(mp));
         } else {
-            message = String.format("Date Range From %s  to  %s  does not exist.", startDate, endDate);
+            message = String.format(failedProfileDeleteMessage, startDate, endDate);
             mp.put("Message", message);
             response.setResponseData(Collections.singletonList(mp));
             response.setResponseCode(ServiceResponse.ResponseCode.BAD_REQUEST.getCode());
