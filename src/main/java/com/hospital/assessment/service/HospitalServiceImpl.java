@@ -44,12 +44,6 @@ public class HospitalServiceImpl implements HospitalService {
     private HospitalDao hospitalDao;
 
 
-    @Value("${no.patient.record:No record found for the patient}")
-    public String noRecord;
-
-
-
-
     @Override
     public DefaultServiceResponse addStaff(StaffRequest request) {
         DefaultServiceResponse response = new DefaultServiceResponse();
@@ -153,15 +147,15 @@ public class HospitalServiceImpl implements HospitalService {
     public String downloadPatientCsv(HospitalRequest request, HttpServletResponse response, String fileName) throws IOException {
         FileWriter fileWriter = null;
         CSVWriter writer = null;
-        try {
-            Optional<Staff> optionalStaff = staffRepository.findByUuid(request.getStaffUuid());
-            if (optionalStaff.isPresent()) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                fileName = System.getProperty("user.dir") + "patient-" + hospitalUtility.generateNumberIdentifier() + ".csv";
-                fileWriter = new FileWriter(fileName);
-                writer = new CSVWriter(fileWriter);
-                List<Map<String, Object>> results = hospitalDao.getPatientRecords(request.getPatientId());
-                if (!results.isEmpty()) {
+        Optional<Staff> optionalStaff = staffRepository.findByUuid(request.getStaffUuid());
+        if (optionalStaff.isPresent()) {
+            List<Map<String, Object>> results = hospitalDao.getPatientRecords(request.getPatientId());
+            if (!results.isEmpty()) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    fileName = System.getProperty("user.dir") + "patient-" + hospitalUtility.generateNumberIdentifier() + ".csv";
+                    fileWriter = new FileWriter(fileName);
+                    writer = new CSVWriter(fileWriter);
                     HashSet<String> headersList = new LinkedHashSet<>();
                     for (String key : results.get(0).keySet()) {
                         headersList.add(key);
@@ -177,16 +171,17 @@ public class HospitalServiceImpl implements HospitalService {
                         writer.writeNext(
                                 new String[]{id, name, age, last_visit_date});
                     }
-                }else{
-                    fileName= noRecord;
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    writer.flush();
+                    fileWriter.close();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            writer.flush();
-            fileWriter.close();
         }
+
         return fileName;
     }
 

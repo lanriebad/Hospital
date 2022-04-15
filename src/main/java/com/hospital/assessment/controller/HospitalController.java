@@ -34,6 +34,10 @@ public class HospitalController {
     @Value("${age.range.for.two:2}")
     public String ageRangeForTwo;
 
+
+    @Value("${no.patient.record:No Record Found}")
+    public String noRecord;
+
     @Autowired
    HospitalUtility hospitalUtility;
 
@@ -126,13 +130,20 @@ public class HospitalController {
     public DefaultServiceResponse downloadPatientCsv(@RequestBody HospitalRequest request, HttpServletResponse response) throws IOException {
         DefaultServiceResponse defaultResponse = new DefaultServiceResponse();
         String fileName = StringUtils.EMPTY;
+        Map<String, Object> mp = new HashMap<>();
+        String message = StringUtils.EMPTY;
         fileName = hospitalService.downloadPatientCsv(request, response, fileName);
-        Map<String,Object> mp = new HashMap<>();
-        String message= String.format("Kindly find the CSV file from this path %s",fileName);
-        mp.put("Message",message);
-        defaultResponse.setResponseCode(ServiceResponse.ResponseCode.SUCCESS.getCode());
-        defaultResponse.setResponseMsg(ServiceResponse.ResponseCode.SUCCESS.getDefaultMessage());
-        defaultResponse.setResponseData(Collections.singletonList(mp));
+        if(StringUtils.isNotEmpty(fileName)) {
+            message = String.format("Kindly find the CSV file from this path %s", fileName);
+            mp.put("Message", message);
+            defaultResponse.setResponseCode(ServiceResponse.ResponseCode.SUCCESS.getCode());
+            defaultResponse.setResponseMsg(ServiceResponse.ResponseCode.SUCCESS.getDefaultMessage());
+            defaultResponse.setResponseData(Collections.singletonList(mp));
+        }else{
+            defaultResponse.setResponseCode(ServiceResponse.ResponseCode.USER_NOT_FOUND.getCode());
+            defaultResponse.setResponseMsg(ServiceResponse.ResponseCode.USER_NOT_FOUND.getDefaultMessage());
+            defaultResponse.setResponseData(Collections.singletonList(noRecord));
+        }
 
         return defaultResponse;
     }
