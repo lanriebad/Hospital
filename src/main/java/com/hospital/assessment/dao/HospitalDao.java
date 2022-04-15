@@ -57,7 +57,7 @@ public class HospitalDao {
     public List<Map<String, Object>> getPatientRecords(Long id) {
         List<Map<String, Object>> result = new ArrayList<>();
         try{
-            String sql= String.format("select * from patient where id= %d ",id);
+            String sql= String.format("select id,name,age,last_visit_date from patient where id= %d ",id);
            result=jdbcTemplate.queryForList(sql);
         }catch(Exception e){
             e.printStackTrace();

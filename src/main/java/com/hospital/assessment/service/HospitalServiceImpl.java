@@ -149,15 +149,12 @@ public class HospitalServiceImpl implements HospitalService {
         try {
             Optional<Staff> optionalStaff = staffRepository.findByUuid(request.getStaffUuid());
             if (optionalStaff.isPresent()) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                //String strDate = sdf.format(selectin);
-                String now = dateFormat.format(new Date());
                 fileName = System.getProperty("user.dir") + "patient-" + hospitalUtility.generateNumberIdentifier() + ".csv";
                 fileWriter = new FileWriter(fileName);
                 writer = new CSVWriter(fileWriter);
                 List<Map<String, Object>> results = hospitalDao.getPatientRecords(request.getPatientId());
-                List<String> headersList = new ArrayList<>();
+                HashSet<String> headersList = new LinkedHashSet<>();
                 for (String key : results.get(0).keySet()) {
                     headersList.add(key);
                 }
@@ -166,12 +163,11 @@ public class HospitalServiceImpl implements HospitalService {
                 writer.writeNext(headerArray);
                 for (int i = 0; i < results.size(); i++) {
                     String id = String.valueOf(results.get(i).get("id"));
-                    // String id = (String) results.get(i).get("id");
                     String name = (String) results.get(i).get("name");
                     String age = (String) results.get(i).get("age");
-                    String last_visit_date = sdf.format(results.get(i).get("last_visit_date"));//results.get(i).get("last_visit_date");
+                    String last_visit_date = sdf.format(results.get(i).get("last_visit_date"));
                     writer.writeNext(
-                            new String[]{id, name, age, last_visit_date});
+                            new String[]{ id,name,age,last_visit_date} );
                 }
             }
         } catch (IOException e) {
@@ -179,7 +175,6 @@ public class HospitalServiceImpl implements HospitalService {
         } finally {
             writer.flush();
             fileWriter.close();
-            //writer.close();
         }
         return fileName;
     }
