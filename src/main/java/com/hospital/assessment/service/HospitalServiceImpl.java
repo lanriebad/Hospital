@@ -15,6 +15,7 @@ import com.hospital.assessment.utility.ServiceResponse;
 import com.opencsv.CSVWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
@@ -41,6 +42,12 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Autowired
     private HospitalDao hospitalDao;
+
+
+    @Value("${no.patient.record:No record found for the patient}")
+    public String noRecord;
+
+
 
 
     @Override
@@ -154,20 +161,24 @@ public class HospitalServiceImpl implements HospitalService {
                 fileWriter = new FileWriter(fileName);
                 writer = new CSVWriter(fileWriter);
                 List<Map<String, Object>> results = hospitalDao.getPatientRecords(request.getPatientId());
-                HashSet<String> headersList = new LinkedHashSet<>();
-                for (String key : results.get(0).keySet()) {
-                    headersList.add(key);
-                }
-                String[] headerArray = new String[headersList.size()];
-                headersList.toArray(headerArray);
-                writer.writeNext(headerArray);
-                for (int i = 0; i < results.size(); i++) {
-                    String id = String.valueOf(results.get(i).get("id"));
-                    String name = (String) results.get(i).get("name");
-                    String age = (String) results.get(i).get("age");
-                    String last_visit_date = sdf.format(results.get(i).get("last_visit_date"));
-                    writer.writeNext(
-                            new String[]{ id,name,age,last_visit_date} );
+                if (!results.isEmpty()) {
+                    HashSet<String> headersList = new LinkedHashSet<>();
+                    for (String key : results.get(0).keySet()) {
+                        headersList.add(key);
+                    }
+                    String[] headerArray = new String[headersList.size()];
+                    headersList.toArray(headerArray);
+                    writer.writeNext(headerArray);
+                    for (int i = 0; i < results.size(); i++) {
+                        String id = String.valueOf(results.get(i).get("id"));
+                        String name = (String) results.get(i).get("name");
+                        String age = (String) results.get(i).get("age");
+                        String last_visit_date = sdf.format(results.get(i).get("last_visit_date"));
+                        writer.writeNext(
+                                new String[]{id, name, age, last_visit_date});
+                    }
+                }else{
+                    fileName= noRecord;
                 }
             }
         } catch (IOException e) {
