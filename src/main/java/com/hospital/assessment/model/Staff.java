@@ -16,6 +16,7 @@ public class Staff implements Serializable {
 
     private String name;
 
+    @Column(unique=true)
     private String uuid;
 
     private Date registration_date;

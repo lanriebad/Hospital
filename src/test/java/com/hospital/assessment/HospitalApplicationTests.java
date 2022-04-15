@@ -36,8 +36,8 @@ public class HospitalApplicationTests {
     StaffRepository staffRepository;
 
     private Staff staffRequest;
-    private String uuid="abcdef00223355";
-    private String name = "Oluuii";
+    private String uuid="abcdef002233";
+    private String name = "Oluuui";
     private Long id = Long.valueOf(928);
     private Date regDate=new Date();
 
@@ -61,7 +61,7 @@ public class HospitalApplicationTests {
     public void createStaffTest() {
         staffRepository.save(staffRequest);
             Optional<Staff> byUuid = staffRepository.findByUuid(uuid);
-            logger.info("<<< RESPONSE >>>> {}", byUuid);
+            logger.info("<<< RESPONSE >>>> {}", byUuid.get());
             Assert.assertNotNull(byUuid);
     }
 
